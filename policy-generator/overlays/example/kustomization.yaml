@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+
+namePrefix: example-
+
+patches:
+  - target:
+      kind: IPAddressPool
+    patch: |-
+      - op: replace
+        path: /spec/addresses/0
+        value: 192.168.1.240-192.168.1.250
+
+  - target:
+      kind: L2Advertisement
+    patch: |-
+      - op: replace
+        path: /spec/ipAddressPools/0
+        value: example-cluster-pool

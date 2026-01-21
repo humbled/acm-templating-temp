@@ -1,0 +1,3 @@
+name: redis-dev
+namespace: redis-ent-dev-operator
+ipRange: 10.1.1.10-10.1.1.15

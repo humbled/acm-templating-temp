@@ -1,0 +1,5 @@
+environments:
+  - name: redis-int-1
+    ipRange: 10.2.1.10-10.2.1.15
+  - name: redis-int-2
+    ipRange: 10.2.1.20-10.2.1.25

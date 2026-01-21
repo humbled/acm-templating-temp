@@ -1,0 +1,4 @@
+apiVersion: v2
+name: metallb-config
+description: Creates MetalLB ConfigMap in app namespace
+version: 0.1.0

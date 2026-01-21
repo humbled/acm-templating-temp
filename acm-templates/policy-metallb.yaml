@@ -1,0 +1,40 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: policy-metallb-pools
+  namespace: open-cluster-management-policies
+spec:
+  remediationAction: enforce
+  disabled: false
+  policy-templates:
+    {{- hub range $env := (fromConfigMap "open-cluster-management-policies" "metallb-environments" "environments" | fromYaml) hub }}
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: metallb-pool-{{ hub $env.name hub }}
+        spec:
+          remediationAction: enforce
+          severity: low
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: metallb.io/v1beta1
+                kind: IPAddressPool
+                metadata:
+                  name: {{ hub $env.name hub }}-pool
+                  namespace: metallb-system
+                spec:
+                  addresses:
+                    - {{ hub $env.ipRange hub }}
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: metallb.io/v1beta1
+                kind: L2Advertisement
+                metadata:
+                  name: {{ hub $env.name hub }}-l2
+                  namespace: metallb-system
+                spec:
+                  ipAddressPools:
+                    - {{ hub $env.name hub }}-pool
+    {{- hub end hub }}

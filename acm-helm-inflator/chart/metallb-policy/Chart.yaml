@@ -1,0 +1,4 @@
+apiVersion: v2
+name: metallb-policy
+description: ACM Policy for MetalLB configuration
+version: 0.1.0

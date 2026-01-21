@@ -1,0 +1,13 @@
+{{- range .Values.environments }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: metallb-config
+  namespace: {{ .namespace }}
+  labels:
+    app.kubernetes.io/component: metallb-config
+data:
+  name: {{ .name | quote }}
+  ipRange: {{ .ipRange | quote }}
+{{- end }}

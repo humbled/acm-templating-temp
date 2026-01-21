@@ -1,0 +1,42 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: policy-metallb-{{ .Values.env }}
+  namespace: open-cluster-management-policies
+spec:
+  remediationAction: enforce
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: metallb-pools-{{ .Values.env }}
+        spec:
+          remediationAction: enforce
+          severity: low
+          object-templates-raw: |
+            {{`{{- range (lookup "v1" "ConfigMap" `}}"redis-ent-{{ .Values.env }}-operator"{{` "").items }}`}}
+            {{`{{- if eq (index .metadata.labels "app.kubernetes.io/component") "metallb-config" }}`}}
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: metallb.io/v1beta1
+                kind: IPAddressPool
+                metadata:
+                  name: '{{`{{ index .data "name" }}`}}-pool'
+                  namespace: metallb-system
+                spec:
+                  addresses:
+                    - '{{`{{ index .data "ipRange" }}`}}'
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: metallb.io/v1beta1
+                kind: L2Advertisement
+                metadata:
+                  name: '{{`{{ index .data "name" }}`}}-l2'
+                  namespace: metallb-system
+                spec:
+                  ipAddressPools:
+                    - '{{`{{ index .data "name" }}`}}-pool'
+            {{`{{- end }}`}}
+            {{`{{- end }}`}}

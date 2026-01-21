@@ -1,0 +1,13 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicyGenerator
+metadata:
+  name: metallb-policies
+policyDefaults:
+  namespace: open-cluster-management-policies
+  remediationAction: enforce
+  severity: low
+  consolidateManifests: true
+policies:
+  - name: policy-metallb-config
+    manifests:
+      - path: overlays/example/
