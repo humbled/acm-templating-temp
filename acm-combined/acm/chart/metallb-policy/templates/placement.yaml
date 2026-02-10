@@ -1,25 +1,32 @@
+{{- range $svc, $environments := .Values.services }}
+{{- range $env, $svcEnvs := $environments }}
+{{- range $svcEnv := $svcEnvs }}
+---
 apiVersion: cluster.open-cluster-management.io/v1beta1
 kind: Placement
 metadata:
-  name: metallb-placement-{{ .Values.env }}
+  name: metallb-placement-{{ $svc }}-{{ $svcEnv }}
   namespace: open-cluster-management-policies
 spec:
   predicates:
     - requiredClusterSelector:
         labelSelector:
           matchLabels:
-            environment: {{ .Values.env }}
+            environment: {{ $svcEnv }}
 ---
 apiVersion: policy.open-cluster-management.io/v1
 kind: PlacementBinding
 metadata:
-  name: metallb-binding-{{ .Values.env }}
+  name: metallb-binding-{{ $svc }}-{{ $svcEnv }}
   namespace: open-cluster-management-policies
 placementRef:
   apiGroup: cluster.open-cluster-management.io
   kind: Placement
-  name: metallb-placement-{{ .Values.env }}
+  name: metallb-placement-{{ $svc }}-{{ $svcEnv }}
 subjects:
   - apiGroup: policy.open-cluster-management.io
     kind: Policy
-    name: policy-metallb-{{ .Values.env }}
+    name: policy-metallb-{{ $svc }}-{{ $svcEnv }}
+{{- end }}
+{{- end }}
+{{- end }}

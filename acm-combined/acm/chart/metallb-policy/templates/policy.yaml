@@ -1,7 +1,11 @@
+{{- range $svc, $environments := .Values.services }}
+{{- range $env, $svcEnvs := $environments }}
+{{- range $svcEnv := $svcEnvs }}
+---
 apiVersion: policy.open-cluster-management.io/v1
 kind: Policy
 metadata:
-  name: policy-metallb-{{ .Values.env }}
+  name: policy-metallb-{{ $svc }}-{{ $svcEnv }}
   namespace: open-cluster-management-policies
 spec:
   remediationAction: enforce
@@ -11,12 +15,17 @@ spec:
         apiVersion: policy.open-cluster-management.io/v1
         kind: ConfigurationPolicy
         metadata:
-          name: metallb-pools-{{ .Values.env }}
+          name: metallb-pools-{{ $svc }}-{{ $svcEnv }}
         spec:
           remediationAction: enforce
           severity: low
           object-templates-raw: |
-            {{`{{- range (lookup "v1" "ConfigMap" `}}"redis-ent-{{ .Values.env }}-operator"{{` "").items }}`}}
+            {{`{{- $env := "prod" }}`}}
+            {{`{{- if contains "preprod" .ManagedClusterName }}`}}
+            {{`{{-   $env = "preprod" }}`}}
+            {{`{{- end }}`}}
+            {{`{{- if eq $env `}}"{{ $env }}"{{` }}`}}
+            {{`{{- range (lookup "v1" "ConfigMap" `}}"{{ $svc }}-{{ $svcEnv }}-operator"{{` "").items }}`}}
             {{`{{- if eq (index .metadata.labels "app.kubernetes.io/component") "metallb-config" }}`}}
             - complianceType: musthave
               objectDefinition:
@@ -40,3 +49,7 @@ spec:
                     - '{{`{{ index .data "name" }}`}}-pool'
             {{`{{- end }}`}}
             {{`{{- end }}`}}
+            {{`{{- end }}`}}
+{{- end }}
+{{- end }}
+{{- end }}

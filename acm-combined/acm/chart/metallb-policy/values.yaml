@@ -1,1 +1,7 @@
-env: ENV
+services:
+  redis-ent:
+    preprod: [dev, int, st]
+    prod: [prod]
+  confluent:
+    preprod: [dev, preprod]
+    prod: [prod]

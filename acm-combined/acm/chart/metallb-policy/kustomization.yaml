@@ -3,7 +3,5 @@ kind: Kustomization
 
 helmCharts:
   - name: metallb-policy
-    repo: file://../../chart
+    repo: file://.
     releaseName: metallb
-    valuesInline:
-      env: int
