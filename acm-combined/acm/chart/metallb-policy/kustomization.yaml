@@ -5,3 +5,4 @@ helmCharts:
   - name: metallb-policy
     repo: file://.
     releaseName: metallb
+    valuesFile: values.yaml

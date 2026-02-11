@@ -1,6 +1,8 @@
+{{- $policies := list }}
 {{- range $svc, $environments := .Values.services }}
 {{- range $env, $svcEnvs := $environments }}
 {{- range $svcEnv := $svcEnvs }}
+{{- $policies = append $policies (dict "svc" $svc "env" $env "svcEnv" $svcEnv) }}
 ---
 apiVersion: policy.open-cluster-management.io/v1
 kind: Policy
@@ -51,5 +53,41 @@ spec:
             {{`{{- end }}`}}
             {{`{{- end }}`}}
 {{- end }}
+{{- end }}
+{{- end }}
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: metallb-binding-preprod
+  namespace: open-cluster-management-policies
+placementRef:
+  apiGroup: cluster.open-cluster-management.io
+  kind: Placement
+  name: workload-clusters-preprod
+subjects:
+{{- range $p := $policies }}
+{{- if eq $p.env "preprod" }}
+  - apiGroup: policy.open-cluster-management.io
+    kind: Policy
+    name: policy-metallb-{{ $p.svc }}-{{ $p.svcEnv }}
+{{- end }}
+{{- end }}
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: metallb-binding-prod
+  namespace: open-cluster-management-policies
+placementRef:
+  apiGroup: cluster.open-cluster-management.io
+  kind: Placement
+  name: workload-clusters-prod
+subjects:
+{{- range $p := $policies }}
+{{- if eq $p.env "prod" }}
+  - apiGroup: policy.open-cluster-management.io
+    kind: Policy
+    name: policy-metallb-{{ $p.svc }}-{{ $p.svcEnv }}
 {{- end }}
 {{- end }}
